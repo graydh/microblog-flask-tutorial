@@ -15,3 +15,5 @@ class Config:
     ADMINS = ['declangraymullen@gmail.com']
 
     POSTS_PER_PAGE = 20
+
+    LANGUAGES = ['en', 'es']

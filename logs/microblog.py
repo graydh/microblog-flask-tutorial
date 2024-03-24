@@ -8,3 +8,5 @@
 2024-03-19 09:55:14,685 INFO: Microblog startup [in /Users/dgraymullen/Documents/GitHub/microblog-flask-tutorial/app/__init__.py:44]
 2024-03-19 09:55:55,308 INFO: Microblog startup [in /Users/dgraymullen/Documents/GitHub/microblog-flask-tutorial/app/__init__.py:44]
 2024-03-19 09:56:29,412 INFO: Microblog startup [in /Users/dgraymullen/Documents/GitHub/microblog-flask-tutorial/app/__init__.py:44]
+2024-03-24 10:42:54,466 INFO: Microblog startup [in /Users/dgraymullen/Documents/GitHub/microblog-flask-tutorial/app/__init__.py:53]
+2024-03-24 10:42:59,210 INFO: Microblog startup [in /Users/dgraymullen/Documents/GitHub/microblog-flask-tutorial/app/__init__.py:53]
