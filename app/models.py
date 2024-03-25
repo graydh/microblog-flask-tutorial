@@ -119,5 +119,7 @@ class Post(db.Model):
 
     author: so.Mapped[User] = so.relationship(back_populates='posts')
 
+    language: so.Mapped[Optional[str]] = so.mapped_column(sa.String(5))
+
     def __repr___(self):
         return '<Post {}>'.format(self.body)
