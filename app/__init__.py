@@ -12,8 +12,7 @@ import os
 from config import Config
 
 def get_locale():
-    #return request.accept_languages.best_match(app.config['LANGUAGES'])
-    return 'es'
+    return request.accept_languages.best_match(app.config['LANGUAGES'])
 
 app = Flask(__name__)
 app.config.from_object(Config)
