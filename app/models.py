@@ -7,9 +7,7 @@ from time import time
 import sqlalchemy as sa
 import sqlalchemy.orm as so
 from flask_login import UserMixin
-from app import db
-from app import login
-from app import app
+from app import db, login
 
 followers = sa.Table(
     'followers',
