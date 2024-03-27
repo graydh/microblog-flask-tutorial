@@ -5,6 +5,7 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_moment import Moment
+from elasticsearch import Elasticsearch
 import logging
 from logging.handlers import SMTPHandler, RotatingFileHandler
 import os
@@ -45,6 +46,9 @@ def create_app(config_class=Config):
 
     from app.cli import bp as cli_bp
     app.register_blueprint(cli_bp)
+
+    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
+        if app.config['ELASTICSEARCH_URL'] else None
 
     if not app.debug and not app.testing:
         # email notifications

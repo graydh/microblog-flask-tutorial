@@ -8,17 +8,20 @@ import sqlalchemy as sa
 
 from app import db
 
-from app.main.forms import EditProfileForm, EmptyForm, PostForm
+from app.main.forms import EditProfileForm, EmptyForm, PostForm, SearchForm
 from app.models import User, Post
 from app.translate import translate
 from app.main import bp
 
-@bp.before_request
+
+@bp.before_app_request
 def before_request():
     if current_user.is_authenticated:
-        current_user.last_seen = datetime.now(timezone.utc)
+        current_user.last_seen = datetime.utcnow()
         db.session.commit()
+        g.search_form = SearchForm()
     g.locale = str(get_locale())
+
 
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
@@ -43,6 +46,7 @@ def index():
     if posts.has_prev: prev_url = url_for('main.index', page=posts.prev_num)
     return render_template('index.html', title=_('Home page'),
                            posts=posts, form=form, prev_url=prev_url, next_url=next_url)
+
 
 @bp.route('/user/<username>')
 @login_required
@@ -74,6 +78,7 @@ def edit_profile():
         form.about_me.data = current_user.about_me
     return render_template('edit_profile.html', title=_('Edit Profile'), form=form)
 
+
 @bp.route('/follow/<username>', methods=['POST'])
 @login_required
 def follow(username):
@@ -94,6 +99,7 @@ def follow(username):
         return redirect(url_for('main.user', username=username))
     else:
         return redirect(url_for('main.index'))
+
 
 @bp.route('/unfollow/<username>', methods=['POST'])
 @login_required
@@ -116,6 +122,7 @@ def unfollow(username):
     else:
         return redirect(url_for('main.index'))
 
+
 @bp.route('/explore')
 @login_required
 def explore():
@@ -129,6 +136,7 @@ def explore():
     return render_template("index.html", title=_('Explore'),
                            posts=posts, next_url=next_url, prev_url=prev_url)
 
+
 @bp.route('/translate', methods=['POST'])
 @login_required
 def translate_text():
@@ -136,3 +144,19 @@ def translate_text():
     return {'text': translate(data['text'],
                               data['source_language'],
                               data['dest_language'])}
+
+
+@bp.route('/search')
+@login_required
+def search():
+    if not g.search_form.validate():
+        return redirect(url_for('main.explore'))
+    page = request.args.get('page', 1, type=int)
+    posts, total = Post.search(g.search_form.q.data, page,
+                               current_app.config['POSTS_PER_PAGE'])
+    next_url = url_for('main.search', q=g.search_form.q.data, page=page + 1) \
+        if total > page * current_app.config['POSTS_PER_PAGE'] else None
+    prev_url = url_for('main.search', q=g.search_form.q.data, page=page - 1) \
+        if page > 1 else None
+    return render_template('search.html', title=_('Search'), posts=posts,
+                           next_url=next_url, prev_url=prev_url)
