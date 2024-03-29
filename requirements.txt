@@ -8,8 +8,8 @@ certifi==2024.2.2
 charset-normalizer==3.3.2
 click==8.1.7
 dnspython==2.6.1
-elastic-transport==7.13.4
-elasticsearch====7.13.4
+elastic-transport==7.13.0
+elasticsearch====7.13.0
 email_validator==2.1.1
 Flask==3.0.2
 flask-babel==4.0.0
