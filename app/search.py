@@ -22,6 +22,5 @@ def query_index(index, query, page, per_page):
         body={"query": {"multi_match": {"query": query,  'fields': ['*']}}},
         from_=(page - 1) * per_page,
         size=per_page)
-    # TODO refactory query parameter? pagination?
     ids = [int(hit['_id']) for hit in search['hits']['hits']]
     return ids, search['hits']['total']['value']
