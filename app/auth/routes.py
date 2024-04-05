@@ -64,7 +64,7 @@ def reset_password_request():
         user = db.session.scalar(sa.select(User).where(User.email == form.email.data))
         if user:
             send_password_reset_email(user)
-        flash(_('Check your email, reset password link sent'))
+        flash(_('Check your email (spam), reset password link sent'))
         redirect(url_for('auth.login'))
     return render_template('auth/reset_password_request.html', title=_('Reset Password'), form=form)
 
