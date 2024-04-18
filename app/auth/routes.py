@@ -13,6 +13,7 @@ from app.auth.forms import ResetPasswordRequestForm, ResetPasswordForm
 from app.models import User
 from app.auth.email import send_password_reset_email
 
+
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
@@ -37,7 +38,6 @@ def login():
         user = db.session.scalar(
             sa.select(User).where(User.username == form.username.data)
         )
-        print(form.password.data)
         if user is None or not user.check_password(form.password.data):
             flash(_('invalid username or password'))
             return redirect(url_for('auth.login'))
@@ -48,10 +48,12 @@ def login():
         return redirect(next_page)
     return render_template('auth/login.html', title=_('Sign In'), form=form)
 
+
 @bp.route('/logout')
 def logout():
     logout_user()
     return redirect(url_for('main.index'))
+
 
 @bp.route('/reset_password_request', methods=['GET', 'POST'])
 def reset_password_request():
@@ -62,9 +64,10 @@ def reset_password_request():
         user = db.session.scalar(sa.select(User).where(User.email == form.email.data))
         if user:
             send_password_reset_email(user)
-        flash(_('Check your email, reset password link sent'))
+        flash(_('Check your email (spam), reset password link sent'))
         redirect(url_for('auth.login'))
     return render_template('auth/reset_password_request.html', title=_('Reset Password'), form=form)
+
 
 @bp.route('/reset_password/<token>', methods=['GET', 'POST'])
 def reset_password(token):

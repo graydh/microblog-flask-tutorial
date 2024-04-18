@@ -1,3 +1,10 @@
+import logging
+from logging.handlers import SMTPHandler, RotatingFileHandler
+import os
+from redis import Redis
+import rq
+from config import Config
+from elasticsearch import Elasticsearch
 from flask import Flask, request, current_app
 from flask_babel import Babel, lazy_gettext as _l
 from flask_sqlalchemy import SQLAlchemy
@@ -5,15 +12,11 @@ from flask_migrate import Migrate
 from flask_login import LoginManager
 from flask_mail import Mail
 from flask_moment import Moment
-from elasticsearch import Elasticsearch
-import logging
-from logging.handlers import SMTPHandler, RotatingFileHandler
-import os
 
-from config import Config
 
 def get_locale():
     return request.accept_languages.best_match(current_app.config['LANGUAGES'])
+
 
 babel = Babel()
 db = SQLAlchemy()
@@ -23,6 +26,7 @@ login.login_view = 'auth.login'
 login.login_message = _l('Please log in to access this page.')
 mail = Mail()
 moment = Moment()
+
 
 def create_app(config_class=Config):
     app = Flask(__name__)
@@ -35,6 +39,9 @@ def create_app(config_class=Config):
     moment.init_app(app)
     babel.init_app(app, locale_selector=get_locale)
 
+    app.redis = Redis.from_url(app.config['REDIS_URL'])
+    app.task_queue = rq.Queue('microblog-tasks', connection=app.redis)
+
     from app.errors import bp as errors_bp
     app.register_blueprint(errors_bp)
 
@@ -46,6 +53,9 @@ def create_app(config_class=Config):
 
     from app.cli import bp as cli_bp
     app.register_blueprint(cli_bp)
+
+    from app.api import bp as api_bp
+    app.register_blueprint(api_bp, url_prefix='/api')
 
     app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
         if app.config['ELASTICSEARCH_URL'] else None
@@ -92,5 +102,6 @@ def create_app(config_class=Config):
         app.logger.info('Microblog startup')
 
     return app
+
 
 from app import models
