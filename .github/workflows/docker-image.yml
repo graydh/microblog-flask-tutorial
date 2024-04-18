@@ -26,5 +26,5 @@ jobs:
         with:
           context: .
           push: true
-          tags: graydh/microblog:latest
+          tags: "${{ secrets.DOCKERHUB_USERNAME }}/microblog:latest"
       
