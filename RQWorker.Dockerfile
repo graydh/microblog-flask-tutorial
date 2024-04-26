@@ -11,6 +11,5 @@ RUN chmod a+x boot.sh
 ENV FLASK_APP microblog.py
 RUN flask translate compile
 
-EXPOSE 5000
 ENTRYPOINT ["rq"]
 CMD ["worker", "-u", "redis://localhost:6379/0", "microblog-tasks"]

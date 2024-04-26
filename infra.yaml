@@ -1,0 +1,28 @@
+services:
+  mysql:
+    image: "mysql:latest"
+    networks:
+      - microblog-network
+      - microblog-network-infra
+    environment:
+      - MYSQL_RANDOM_ROOT_PASSWORD=${MYSQL_RANDOM_ROOT_PASSWORD}
+      - MYSQL_DATABASE=${MYSQL_DATABASE}
+      - MYSQL_USER=${MYSQL_USER}
+      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+  redis:
+    image: "redis:latest"
+    ports:
+      - "6379:6379"
+    networks:
+      - microblog-network
+      - microblog-network-infra
+  elastic:
+    image: "docker.elastic.co/elasticsearch/elasticsearch:7.17.19"
+    ports:
+      - "9200:9200"
+    networks:
+      - microblog-network
+      - microblog-network-infra
+    environment:
+      - xpack.security.enabled=false
+      - discovery.type=single-node
