@@ -3,6 +3,9 @@ include:
 services:
   microblog:
     image: "microblog:latest"
+    build:
+      context: .
+      dockerfile: Dockerfile
     depends_on:
       elastic:
         condition: service_started
@@ -21,11 +24,14 @@ services:
       - REDIS_URL=${REDIS_URL}
   microblog-worker:
     image: "microblog-worker:latest"
+    build:
+      context: .
+      dockerfile: RQWorker.Dockerfile
     depends_on:
       mysql:
         condition: service_started
       redis:
-        condition: service_started
+        condition: service_healthy
     networks:
       - microblog-network
     environment:
