@@ -1,0 +1,46 @@
+include:
+    - infra.yaml
+services:
+  microblog:
+    image: "microblog:latest"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    depends_on:
+      elastic:
+        condition: service_started
+      microblog-worker:
+        condition: service_started
+    ports:
+      - "8000:5000"
+    networks:
+      - microblog-network
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - MAIL_SERVER=${MAIL_SERVER}
+      - MAIL_PORT=${MAIL_PORT}
+      - DATABASE_URL=${DATABASE_URL}
+      - ELASTICSEARCH_URL=${ELASTICSEARCH_URL}
+      - REDIS_URL=${REDIS_URL}
+  microblog-worker:
+    image: "microblog-worker:latest"
+    build:
+      context: .
+      dockerfile: RQWorker.Dockerfile
+    depends_on:
+      mysql:
+        condition: service_started
+      redis:
+        condition: service_healthy
+    networks:
+      - microblog-network
+    environment:
+      - SECRET_KEY=${SECRET_KEY}
+      - MAIL_SERVER=${MAIL_SERVER}
+      - MAIL_PORT=${MAIL_PORT}
+      - DATABASE_URL=${DATABASE_URL}
+      - ELASTICSEARCH_URL=${ELASTICSEARCH_URL}
+      - REDIS_URL=${REDIS_URL}
+networks:
+  microblog-network: {}
+  microblog-network-infra: {}
