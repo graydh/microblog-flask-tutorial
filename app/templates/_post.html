@@ -25,6 +25,14 @@
                                 '{{ g.locale }}');">{{ _('Translate') }}</a>
                 </span>
             {% endif %}
+            {% if current_user.email in config['ADMINS'] %}
+                <p>
+                    <form action="{{ url_for('main.remove_post', post_id=post.id) }}" method="post">
+                        {{ delete_form.hidden_tag() }}
+                        {{ delete_form.submit(value=_('Remove Post'), class_='btn btn-primary') }}
+                    </form>
+                </p>
+            {% endif %}
         </td>
 
     </tr>

@@ -44,8 +44,9 @@ def index():
     next_url, prev_url = None, None
     if posts.has_next: next_url = url_for('main.index', page=posts.next_num)
     if posts.has_prev: prev_url = url_for('main.index', page=posts.prev_num)
+    delete_form = EmptyForm()
     return render_template('index.html', title=_('Home page'),
-                           posts=posts, form=form, prev_url=prev_url, next_url=next_url)
+                           posts=posts, form=form, delete_form=delete_form, prev_url=prev_url, next_url=next_url)
 
 
 @bp.route('/user/<username>')
@@ -59,8 +60,9 @@ def user(username):
     if posts.has_next: next_url = url_for('main.user', username=user.username, page=posts.next_num)
     if posts.has_prev: prev_url = url_for('main.user', username=user.username, page=posts.prev_num)
     form = EmptyForm()
+    delete_form = EmptyForm()
     return render_template('user.html', user=user,
-                           posts=posts, form=form, prev_url=prev_url, next_url=next_url)
+                           posts=posts, form=form, delete_form=delete_form, prev_url=prev_url, next_url=next_url)
 
 
 @bp.route('/edit_profile', methods=['GET', 'POST'])
@@ -123,6 +125,24 @@ def unfollow(username):
         return redirect(url_for('main.index'))
 
 
+@bp.route('/remove_post/<post_id>', methods=['POST'])
+@login_required
+def remove_post(post_id):
+    if current_user.email in current_app.config['ADMINS']:
+        form = EmptyForm()
+        if form.validate_on_submit():
+            post = db.session.query(Post).filter(Post.id == post_id).first()
+            db.session.query(Post).filter(Post.id == post_id).delete()  # picky syntax for delete
+            msg = Message(author=current_user, recipient=post.author,
+                          body="Your post: '" + post.body + "' was removed for violating the content policy")
+            db.session.add(msg)
+            post.author.add_notification('unread_message_count', post.author.unread_message_count())
+            flash('The post no longer exists: ' + post.body)
+            db.session.commit()
+    else:
+        flash('You are not an Admin')
+    return redirect(url_for('main.index'))
+
 @bp.route('/explore')
 @login_required
 def explore():
@@ -133,8 +153,9 @@ def explore():
     next_url, prev_url = None, None
     if posts.has_next: next_url = url_for('main.explore', page=posts.next_num)
     if posts.has_prev: prev_url = url_for('main.explore', page=posts.prev_num)
+    delete_form = EmptyForm()
     return render_template("index.html", title=_('Explore'),
-                           posts=posts, next_url=next_url, prev_url=prev_url)
+                           posts=posts, delete_form=delete_form, next_url=next_url, prev_url=prev_url)
 
 
 @bp.route('/translate', methods=['POST'])
@@ -158,8 +179,9 @@ def search():
         if total > page * current_app.config['POSTS_PER_PAGE'] else None
     prev_url = url_for('main.search', q=g.search_form.q.data, page=page - 1) \
         if page > 1 else None
+    delete_form = EmptyForm()
     return render_template('search.html', title=_('Search'), posts=posts,
-                           next_url=next_url, prev_url=prev_url)
+                           delete_form=delete_form, next_url=next_url, prev_url=prev_url)
 
 
 @bp.route('/user/<username>/popup')
