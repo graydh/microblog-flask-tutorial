@@ -226,7 +226,8 @@ def messages():
         if messages.has_next else None
     prev_url = url_for('main.messages', page=messages.prev_num) \
         if messages.has_prev else None
-    return render_template('messages.html', messages=messages.items,
+    delete_form = EmptyForm()
+    return render_template('messages.html', messages=messages.items, delete_form=delete_form,
                            next_url=next_url, prev_url=prev_url)
 
 
