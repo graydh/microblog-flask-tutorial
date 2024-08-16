@@ -128,20 +128,25 @@ def unfollow(username):
 @bp.route('/remove_post/<post_id>', methods=['POST'])
 @login_required
 def remove_post(post_id):
-    if current_user.email in current_app.config['ADMINS']:
-        form = EmptyForm()
-        if form.validate_on_submit():
-            post = db.session.query(Post).filter(Post.id == post_id).first()
-            db.session.query(Post).filter(Post.id == post_id).delete()  # picky syntax for delete
+    form = EmptyForm()
+    if form.validate_on_submit():
+        post = db.session.query(Post).filter(Post.id == post_id).first()
+        if current_user.email not in current_app.config['ADMINS']:
+            # check a user should be deleting own post
+            if post.author != current_user:
+                flash("You can only delete your own posts!")
+                return redirect(url_for('main.index'))
+        else:
+            # an admin is deleting
             msg = Message(author=current_user, recipient=post.author,
                           body="Your post: '" + post.body + "' was removed for violating the content policy")
             db.session.add(msg)
             post.author.add_notification('unread_message_count', post.author.unread_message_count())
-            flash('The post no longer exists: ' + post.body)
-            db.session.commit()
-    else:
-        flash('You are not an Admin')
+        db.session.query(Post).filter(Post.id == post_id).delete()  # picky syntax for delete
+        flash('The post no longer exists: ' + post.body)
+        db.session.commit()
     return redirect(url_for('main.index'))
+
 
 @bp.route('/explore')
 @login_required
