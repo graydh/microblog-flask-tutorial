@@ -25,9 +25,9 @@
                                 '{{ g.locale }}');">{{ _('Translate') }}</a>
                 </span>
             {% endif %}
-            {% if current_user.email in config['ADMINS'] %}
+            {% if current_user.email in config['ADMINS'] or current_user == post.author %}
                 <p>
-                    <form action="{{ url_for('main.remove_post', post_id=post.id) }}" method="post">
+                    <form action="{{ url_for('main.remove_post', post_id=post.id) }}" method="post" onSubmit="return confirm('Are you sure you wish to delete?');">
                         {{ delete_form.hidden_tag() }}
                         {{ delete_form.submit(value=_('Remove Post'), class_='btn btn-primary') }}
                     </form>
