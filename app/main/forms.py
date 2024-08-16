@@ -1,8 +1,8 @@
 from flask import request
 from flask_babel import _, lazy_gettext as _l
 from flask_wtf import FlaskForm
-from wtforms import StringField, SubmitField, TextAreaField
-from wtforms.validators import DataRequired, ValidationError, Length
+from wtforms import StringField, SubmitField, TextAreaField, PasswordField
+from wtforms.validators import DataRequired, ValidationError, Length, Email, EqualTo
 import sqlalchemy as sa
 from app import db
 from app.models import User
@@ -49,4 +49,20 @@ class MessageForm(FlaskForm):
     message = TextAreaField(_l('Message'), validators=[
         DataRequired(), Length(min=0, max=140)])
     submit = SubmitField(_l('Submit'))
+
+
+class RegistrationFrom(FlaskForm):
+    username = StringField(_l('New Username'), validators=[DataRequired()], description="Can change later in Profile")
+    email = StringField(_l('Email'), validators=[Email(), DataRequired()])
+    submit = SubmitField(_l('Register'))
+
+    def validate_username(self, username):
+        user = db.session.scalar(sa.select(User).where(User.username == username.data))
+        if user is not None:
+            raise ValidationError(_l('Please use a different username'))
+
+    def validate_email(self, email):
+        user = db.session.scalar(sa.select(User).where(User.email == email.data))
+        if user is not None:
+            raise ValidationError(_l('Please use a different email'))
 
