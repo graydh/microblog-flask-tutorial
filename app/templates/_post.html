@@ -29,7 +29,7 @@
                 <p>
                     <form action="{{ url_for('main.remove_post', post_id=post.id) }}" method="post" onSubmit="return confirm('Are you sure you wish to delete?');">
                         {{ delete_form.hidden_tag() }}
-                        {{ delete_form.submit(value=_('Remove Post'), class_='btn btn-primary') }}
+                        {{ delete_form.submit(value=_('Remove Post'), class_='btn btn-outline-danger btn-sm') }}
                     </form>
                 </p>
             {% endif %}
