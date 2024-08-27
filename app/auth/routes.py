@@ -8,26 +8,10 @@ import sqlalchemy as sa
 from app import db
 from app.auth import bp
 
-from app.auth.forms import LoginForm, RegistrationFrom
+from app.auth.forms import LoginForm
 from app.auth.forms import ResetPasswordRequestForm, ResetPasswordForm
 from app.models import User
 from app.auth.email import send_password_reset_email
-
-
-@bp.route('/register', methods=['GET', 'POST'])
-def register():
-    if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
-    form = RegistrationFrom()
-    if form.validate_on_submit():
-        user = User(username=form.username.data, email=form.email.data)
-        user.set_password(form.password.data)
-        db.session.add(user)
-        db.session.commit()
-        flash(_('Congratulations you are now a registered user!'))
-        login_user(user)
-        return redirect(url_for('main.index'))
-    return render_template('auth/register.html', title=_('Register'), form=form)
 
 
 @bp.route('/login', methods=['GET', 'POST'])

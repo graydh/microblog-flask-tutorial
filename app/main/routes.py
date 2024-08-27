@@ -8,7 +8,7 @@ import sqlalchemy as sa
 
 from app import db
 
-from app.main.forms import EditProfileForm, EmptyForm, PostForm, SearchForm, MessageForm
+from app.main.forms import EditProfileForm, EmptyForm, PostForm, SearchForm, MessageForm, RegistrationFrom
 from app.models import User, Post, Message, Notification
 from app.translate import translate
 from app.main import bp
@@ -259,4 +259,17 @@ def export_posts():
         current_user.launch_task('export_posts', _('Exporting posts...'))
         db.session.commit()
     return redirect(url_for('main.user', username=current_user.username))
+
+
+@bp.route('/register', methods=['GET', 'POST'])
+@login_required
+def register():
+    form = RegistrationFrom()
+    if form.validate_on_submit():
+        new_user = User(username=form.username.data, email=form.email.data)
+        db.session.add(new_user)
+        db.session.commit()
+        flash(_('Congratulations they are now a registered user!'))
+        return redirect(url_for('main.register'))
+    return render_template('register.html', title=_('Invite'), form=form)
 
