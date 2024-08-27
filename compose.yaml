@@ -41,6 +41,13 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - ELASTICSEARCH_URL=${ELASTICSEARCH_URL}
       - REDIS_URL=${REDIS_URL}
+  mail-server:
+    image: "mail-server:latest"
+    build:
+      context: .
+      dockerfile: MailServer.Dockerfile
+    networks:
+      - microblog-network
 networks:
   microblog-network: {}
   microblog-network-infra: {}
