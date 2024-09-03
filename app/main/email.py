@@ -3,12 +3,12 @@ from flask_babel import _
 from app.email import send_email
 
 
-def send_password_reset_email(user):
+def send_user_invite_email(user):
     token = user.get_reset_password_token()
-    send_email(_('[Micro-Blog] Reset Your Password'),
+    send_email(_('[Micro-Blog] New User Invite'),
                sender=current_app.config['ADMINS'][0],
                recipients=[user.email],
-               text_body=render_template('email/reset_password.txt',
+               text_body=render_template('email/invite_user.txt',
                                          user=user, token=token),
-               html_body=render_template('email/reset_password.html',
+               html_body=render_template('email/invite_user.html',
                                          user=user, token=token))
