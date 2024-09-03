@@ -2,15 +2,16 @@
 <html>
     <body>
         <p>Dear {{ user.username }},</p>
+        <p>You have been invited to join the Micro-Blog. Welcome!</p>
         <p>
-            To reset your password
+            To login, first reset your password by clicking on the following link:
             <a href="{{ url_for('auth.reset_password', token=token, _external=True) }}">
                 click here
             </a>.
         </p>
         <p>Alternatively, you can paste the following link in your browser's address bar:</p>
         <p>{{ url_for('auth.reset_password', token=token, _external=True) }}</p>
-        <p>If you have not requested a password reset simply ignore this message.</p>
+        <p>If you are not interested in joining the Micro-Blog simply ignore this message.</p>
         <p>Sincerely,</p>
         <p>The Micro-Blog Team</p>
     </body>

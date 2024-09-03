@@ -12,6 +12,7 @@ from app.main.forms import EditProfileForm, EmptyForm, PostForm, SearchForm, Mes
 from app.models import User, Post, Message, Notification
 from app.translate import translate
 from app.main import bp
+from app.main.email import send_user_invite_email
 
 
 @bp.before_app_request
@@ -270,6 +271,10 @@ def register():
         db.session.add(new_user)
         db.session.commit()
         flash(_('Congratulations they are now a registered user!'))
+        # select user for invite email
+        user = db.session.scalar(sa.select(User).where(User.email == form.email.data))
+        if user:
+            send_user_invite_email(user)
         return redirect(url_for('main.register'))
     return render_template('register.html', title=_('Invite'), form=form)
 

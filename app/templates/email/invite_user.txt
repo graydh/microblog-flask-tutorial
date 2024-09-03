@@ -1,0 +1,13 @@
+Dear {{ user.username }},
+
+You have been invited to join the Micro-Blog. Welcome!
+
+To login, first reset your password by clicking on the following link:
+
+{{ url_for('auth.reset_password', token=token, _external=True) }}
+
+If you are not interested in joining the Micro-Blog simply ignore this message.
+
+Sincerely,
+
+The Micro-Blog Team
