@@ -8,4 +8,19 @@
         {{ _('Forgot Your Password?') }}
         <a href="{{ url_for('auth.reset_password_request') }}">{{ _('Click to Reset It') }}</a>
     </p>
+    <script>
+        window.addEventListener("load", function(){
+            var checkbox  = document.getElementById('{{form.show_password.id}}');
+            var x = document.getElementById('{{form.password.id}}');
+            var changePasswordDisplayed = function() {
+                if(this.checked) {
+                    x.type = 'text'; 
+                } else {
+                    x.type = 'password'; 
+                }
+            };
+            changePasswordDisplayed();
+            checkbox.addEventListener('change', changePasswordDisplayed);
+        });
+    </script>
 {% endblock %}
