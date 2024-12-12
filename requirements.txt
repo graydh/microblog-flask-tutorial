@@ -12,8 +12,6 @@ click==8.1.7
 cryptography==42.0.5
 defusedxml==0.7.1
 dnspython==2.6.1
-elastic-transport==7.13.0
-elasticsearch==7.13.0
 email_validator==2.1.1
 Flask==3.0.2
 flask-babel==4.0.0
