@@ -15,6 +15,7 @@ from typing import Optional
 from time import time
 from flask import current_app, url_for
 from flask_login import UserMixin
+from langdetect import detect, LangDetectException
 from app import db, login
 
 
@@ -259,23 +260,36 @@ class Post(db.Model):
 
     language: so.Mapped[Optional[str]] = so.mapped_column(sa.String(5))
 
-    # Full-text search vector column
-    __search_vector__ = func.to_tsvector(sa.cast(sa.literal("english"), type_=postgresql.REGCONFIG), sa.cast(body, postgresql.TEXT))
-    # TODO(17) support full text search/query of other languages
+    # Full-text search
+    __search_vector__ = func.to_tsvector(sa.cast(sa.literal("simple"), type_=postgresql.REGCONFIG), sa.cast(body, postgresql.TEXT))
+    __search_vector_en__ = func.to_tsvector(sa.cast(sa.literal("english"), type_=postgresql.REGCONFIG), sa.cast(body, postgresql.TEXT))
+    __search_vector_es__ = func.to_tsvector(sa.cast(sa.literal("spanish"), type_=postgresql.REGCONFIG), sa.cast(body, postgresql.TEXT))
 
     # Trigger or index configuration to update search_vector
     __table_args__ = (
         db.Index('ix_post_search_vector', __search_vector__, postgresql_using='gin'),
+        db.Index('ix_post_search_vector_en', __search_vector_en__, postgresql_using='gin'),
+        db.Index('ix_post_search_vector_es', __search_vector_es__, postgresql_using='gin'),
     )
+
+    lg_dict = {'es': 'spanish', 'en': 'english', '': 'simple'}
     
     def __repr___(self):
         return '<Post {}>'.format(self.body)
     
     @staticmethod
-    def search(expression, page, per_page):
+    def search(expression, page, per_page, language):
+        search_index_name = 'search_vector'
+        found_language = ''
+        if language != '':
+            for supported_language in current_app.config['LANGUAGES']:
+                if supported_language == language:
+                    search_index_name += '_' + supported_language
+                    found_language = supported_language
+        
         # Simple query with match
         results = Post.query.filter(
-            Post.__search_vector__.match(expression)
+            eval('Post.__'+search_index_name+'__').match(expression, postgresql_regconfig=Post.lg_dict[found_language])
         ).paginate(page=page, per_page=per_page) # TODO(17)
 
         total = len(results.items)
