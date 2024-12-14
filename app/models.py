@@ -5,7 +5,7 @@ import rq
 import secrets
 import sqlalchemy as sa
 import sqlalchemy.orm as so
-from sqlalchemy.dialects.postgresql import TSVECTOR
+from sqlalchemy.dialects import postgresql
 from sqlalchemy.ext.hybrid import hybrid_property, hybrid_method
 from sqlalchemy.sql import func, text
 from datetime import datetime, timezone, timedelta
@@ -16,7 +16,6 @@ from time import time
 from flask import current_app, url_for
 from flask_login import UserMixin
 from app import db, login
-from app.search import add_to_index, remove_from_index, query_index
 
 
 followers = sa.Table(
@@ -245,7 +244,7 @@ class User(PaginatedAPIMixin, UserMixin, db.Model):
         return user
 
 
-class Post( db.Model):
+class Post(db.Model):
     __searchable__ = ['body']
 
     id: so.Mapped[int] = so.mapped_column(primary_key=True)
@@ -261,11 +260,12 @@ class Post( db.Model):
     language: so.Mapped[Optional[str]] = so.mapped_column(sa.String(5))
 
     # Full-text search vector column
-    search_vector = db.Column(TSVECTOR, nullable=True)
+    __search_vector__ = func.to_tsvector(sa.cast(sa.literal("english"), type_=postgresql.REGCONFIG), sa.cast(body, postgresql.TEXT))
+    # TODO(17) support full text search/query of other languages
 
     # Trigger or index configuration to update search_vector
     __table_args__ = (
-        db.Index('ix_post_search_vector', 'search_vector', postgresql_using='gin'),
+        db.Index('ix_post_search_vector', __search_vector__, postgresql_using='gin'),
     )
     
     def __repr___(self):
@@ -273,10 +273,10 @@ class Post( db.Model):
     
     @staticmethod
     def search(expression, page, per_page):
-        if 'postgres' not in current_app.config['SQLALCHEMY_DATABASE_URI']:
-            return [], 0
         # Simple query with match
-        results = Post.query.filter(Post.search_vector.match(expression)).paginate(page=page, per_page=per_page)
+        results = Post.query.filter(
+            Post.__search_vector__.match(expression)
+        ).paginate(page=page, per_page=per_page) # TODO(17)
 
         total = len(results.items)
         if total == 0:
