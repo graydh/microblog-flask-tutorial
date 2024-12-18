@@ -8,10 +8,11 @@ from app.models import User, Post
 
 from config import Config
 
+# Requires postgresql microblog db running locally
+
 class TestConfig(Config):
     TESTING = True
-    SQLALCHEMY_DATABASE_URI = 'sqlite://'
-    ELASTICSEARCH_URL = None
+    SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres@localhost:5432/microblog'
 
 class UserModelCase(unittest.TestCase):
     def setUp(self):

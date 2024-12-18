@@ -1,32 +1,20 @@
 services:
-  mysql:
-    image: "mysql:latest"
+  postgresql:
+    image: "postgres:17.2"
+    restart: always
+    shm_size: 128mb
     ports:
-      - "3306:3306"
+      - "5432:5432"
     networks:
       - microblog-network
-      - microblog-network-infra
     environment:
-      - MYSQL_RANDOM_ROOT_PASSWORD=${MYSQL_RANDOM_ROOT_PASSWORD}
-      - MYSQL_DATABASE=${MYSQL_DATABASE}
-      - MYSQL_USER=${MYSQL_USER}
-      - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB} 
   redis:
     image: "redis:latest"
     healthcheck:
-      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      test: [ "CMD", "redis-cli", "--raw", "incr", "pdoing" ]
     ports:
       - "6379:6379"
     networks:
       - microblog-network
-      - microblog-network-infra
-  elastic:
-    image: "docker.elastic.co/elasticsearch/elasticsearch:7.17.19"
-    ports:
-      - "9200:9200"
-    networks:
-      - microblog-network
-      - microblog-network-infra
-    environment:
-      - xpack.security.enabled=false
-      - discovery.type=single-node

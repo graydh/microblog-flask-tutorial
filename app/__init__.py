@@ -4,7 +4,6 @@ import os
 from redis import Redis
 import rq
 from config import Config
-from elasticsearch import Elasticsearch
 from flask import Flask, request, current_app
 from flask_babel import Babel, lazy_gettext as _l
 from flask_sqlalchemy import SQLAlchemy
@@ -56,9 +55,6 @@ def create_app(config_class=Config):
 
     from app.api import bp as api_bp
     app.register_blueprint(api_bp, url_prefix='/api')
-
-    app.elasticsearch = Elasticsearch([app.config['ELASTICSEARCH_URL']]) \
-        if app.config['ELASTICSEARCH_URL'] else None
 
     if not app.debug and not app.testing:
         # email notifications

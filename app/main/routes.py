@@ -24,16 +24,20 @@ def before_request():
     g.locale = str(get_locale())
 
 
+def detect_language(input_data):
+    try:
+        return detect(input_data)
+    except LangDetectException:
+        return ''
+
+
 @bp.route('/', methods=['GET', 'POST'])
 @bp.route('/index', methods=['GET', 'POST'])
 @login_required
 def index():
     form = PostForm()
     if form.validate_on_submit():
-        try:
-            language = detect(form.post.data)
-        except LangDetectException:
-            language = ''
+        language = detect_language(form.post.data)
         post = Post(body=form.post.data, author=current_user, language=language)
         db.session.add(post)
         db.session.commit()
@@ -179,8 +183,9 @@ def search():
     if not g.search_form.validate():
         return redirect(url_for('main.explore'))
     page = request.args.get('page', 1, type=int)
+    language = detect_language(g.search_form.q.data)
     posts, total = Post.search(g.search_form.q.data, page,
-                               current_app.config['POSTS_PER_PAGE'])
+                               current_app.config['POSTS_PER_PAGE'], language)
     next_url = url_for('main.search', q=g.search_form.q.data, page=page + 1) \
         if total > page * current_app.config['POSTS_PER_PAGE'] else None
     prev_url = url_for('main.search', q=g.search_form.q.data, page=page - 1) \

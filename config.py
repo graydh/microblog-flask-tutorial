@@ -10,6 +10,7 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL', '').replace(
         'postgres://', 'postgresql://') or \
                               'sqlite:///' + os.path.join(base_dir, 'app.db')
+    # TODO remove sqlite db as build default
 
     LOG_TO_STDOUT = os.environ.get('LOG_TO_STDOUT')
 
@@ -25,7 +26,5 @@ class Config:
     LANGUAGES = ['en', 'es']
 
     MS_TRANSLATOR_KEY = os.environ.get('MS_TRANSLATOR_KEY')
-
-    ELASTICSEARCH_URL = os.environ.get('ELASTICSEARCH_URL')
 
     REDIS_URL = os.environ.get('REDIS_URL') or 'redis://'
