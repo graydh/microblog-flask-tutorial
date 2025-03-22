@@ -2,6 +2,8 @@ name: Trigger on pull_request (plan) and merge_group (apply) events with OpenTof
 
 on:
   pull_request:
+    branches:
+      - prod
   # merge_group:
 
 env:
