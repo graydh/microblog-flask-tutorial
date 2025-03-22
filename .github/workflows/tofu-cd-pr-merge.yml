@@ -55,7 +55,6 @@ jobs:
           command: ${{ github.event_name == 'merge_group' && 'apply' || 'plan' }}
           arg-refresh: ${{ github.event_name == 'merge_group' && 'false' || 'true' }} # Skip refresh on apply.
           arg-lock: ${{ github.event_name == 'merge_group' }}
-          arg-workspace: ${{ matrix.deployment }}
           plan-encrypt: ${{ secrets.PASSPHRASE }}
           plan-parity: true # Prevents stale apply within merge queue.
           tool: tofu

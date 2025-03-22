@@ -13,11 +13,6 @@ variable "AWS_ROLE_ARN" {
 }
 
 provider aws {
-  assume_role {
-    role_arn     = var.AWS_ROLE_ARN
-    session_name = "UpdateContainerServiceInstance"
-    external_id  = "OpenTofu-Dev"
-  }
 }
 
 resource "aws_lightsail_container_service" "microblog-flask-tutorial" {
