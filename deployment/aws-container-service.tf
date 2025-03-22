@@ -7,16 +7,14 @@ terraform {
   }
 }
 
-variable "AWS_ROLE_ARN" {
+variable "role_arn" {
   type        = string
   description = "ARN access role for AWS provider"
 }
 
 provider aws {
-  shared_config_files      = ["../.aws/config"]
-  shared_credentials_files = ["../.aws/credentials"]
   assume_role {
-    role_arn     = var.AWS_ROLE_ARN
+    role_arn     = var.role_arn
     session_name = "UpdateContainerServiceInstance"
     external_id  = "OpenTofu-Dev"
   }
