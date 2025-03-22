@@ -24,6 +24,7 @@ jobs:
       checks: write        # Required to add status summary.
       contents: read       # Required to checkout repository.
       pull-requests: write # Required to add comment and label.
+      id-token: write      # jwt for AWS OIDC auth
 
     strategy:
       fail-fast: false
