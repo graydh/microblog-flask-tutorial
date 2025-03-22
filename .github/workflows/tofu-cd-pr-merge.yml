@@ -1,9 +1,11 @@
 name: Trigger on pull_request (plan) and merge_group (apply) events with OpenTofu in matrix strategy.
 
 on:
-  pull_request:
+  pull_request_target:
+    types:
+      - opened
     branches:
-      - prod
+      - 'prod'
   # merge_group:
 
 env:
