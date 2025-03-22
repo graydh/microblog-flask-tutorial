@@ -19,7 +19,7 @@ defaults:
 
 env:
   TF_VAR_AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
-  TF_VAR_AWS_REGION: ${{ secrets.AWS_REGION }}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
   TF_VAR_MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
   TF_VAR_MAIL_PORT: ${{ secrets.MAIL_PORT}}
   TF_VAR_MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
@@ -41,7 +41,7 @@ jobs:
           audience: sts.amazonaws.com
           role-session-name: github-actions-session
           aws-region: ${{ env.AWS_REGION }}
-          role-to-assume: ${{ env.AWS_ROLE_ARN }}
+          role-to-assume: ${{ env.TF_VAR_AWS_ROLE_ARN }}
 
       - uses: opentofu/setup-opentofu@v1
 
