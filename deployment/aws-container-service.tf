@@ -7,17 +7,12 @@ terraform {
   }
 }
 
-variable "role_arn" {
+variable "AWS_ROLE_ARN" {
   type        = string
   description = "ARN access role for AWS provider"
 }
 
 provider aws {
-  assume_role {
-    role_arn     = var.role_arn
-    session_name = "UpdateContainerServiceInstance"
-    external_id  = "OpenTofu-Dev"
-  }
 }
 
 resource "aws_lightsail_container_service" "microblog-flask-tutorial" {

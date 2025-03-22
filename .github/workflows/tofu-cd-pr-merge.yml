@@ -1,0 +1,63 @@
+name: Trigger on pull_request (plan) and merge_group (apply) events with OpenTofu in matrix strategy.
+
+on:
+  pull_request_target:
+    branches:
+      - 'prod'
+  # merge_group:
+
+env:
+  TF_VAR_AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+  AWS_REGION: ${{ secrets.AWS_REGION }}
+  TF_VAR_MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
+  TF_VAR_MAIL_PORT: ${{ secrets.MAIL_PORT}}
+  TF_VAR_MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+  TF_VAR_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD}}
+  TF_VAR_DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  TF_VAR_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  TF_VAR_REDIS_URL: ${{ secrets.REDIS_URL }}
+
+jobs:
+  tf:
+    runs-on: ubuntu-latest
+
+    permissions:
+      actions: read        # Required to identify workflow run.
+      checks: write        # Required to add status summary.
+      contents: read       # Required to checkout repository.
+      pull-requests: write # Required to add comment and label.
+      id-token: write      # jwt for AWS OIDC auth
+
+    strategy:
+      fail-fast: false
+
+    environment: ${{ github.event_name == 'merge_group' && matrix.deployment || '' }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS Credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          audience: sts.amazonaws.com
+          role-session-name: github-actions-session
+          aws-region: ${{ env.AWS_REGION }}
+          role-to-assume: ${{ env.TF_VAR_AWS_ROLE_ARN }}
+
+      - name: Setup TF
+        uses: opentofu/setup-opentofu@v1
+        with:
+          tofu_wrapper: false
+
+      - name: Provision TF
+        uses: op5dev/tf-via-pr@v13
+        with:
+          working-directory: deployment/
+          command: ${{ github.event_name == 'merge_group' && 'apply' || 'plan' }}
+          arg-refresh: ${{ github.event_name == 'merge_group' && 'false' || 'true' }} # Skip refresh on apply.
+          arg-lock: ${{ github.event_name == 'merge_group' }}
+          plan-encrypt: ${{ secrets.PASSPHRASE }}
+          plan-parity: true # Prevents stale apply within merge queue.
+          comment-pr: never
+          tool: tofu
