@@ -7,7 +7,7 @@ terraform {
   }
 }
 
-variable "role_arn" {
+variable "AWS_ROLE_ARN" {
   type        = string
   description = "ARN access role for AWS provider"
 }
