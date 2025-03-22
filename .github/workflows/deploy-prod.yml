@@ -18,15 +18,15 @@ defaults:
     working-directory: ./deployment
 
 env:
-  AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
-  AWS_REGION: ${{ secrets.AWS_REGION }}
-  MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
-  MAIL_PORT: ${{ secrets.MAIL_PORT}}
-  MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
-  MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD}}
-  DATABASE_URL: ${{ secrets.DATABASE_URL }}
-  SECRET_KEY: ${{ secrets.SECRET_KEY }}
-  REDIS_URL: ${{ secrets.REDIS_URL }}
+  TF_VAR_AWS_ROLE_ARN: ${{ secrets.AWS_ROLE_ARN }}
+  TF_VAR_AWS_REGION: ${{ secrets.AWS_REGION }}
+  TF_VAR_MAIL_SERVER: ${{ secrets.MAIL_SERVER }}
+  TF_VAR_MAIL_PORT: ${{ secrets.MAIL_PORT}}
+  TF_VAR_MAIL_USERNAME: ${{ secrets.MAIL_USERNAME }}
+  TF_VAR_MAIL_PASSWORD: ${{ secrets.MAIL_PASSWORD}}
+  TF_VAR_DATABASE_URL: ${{ secrets.DATABASE_URL }}
+  TF_VAR_SECRET_KEY: ${{ secrets.SECRET_KEY }}
+  TF_VAR_REDIS_URL: ${{ secrets.REDIS_URL }}
 
 jobs:
   opentf:
@@ -52,15 +52,15 @@ jobs:
 
       - name: OpenTofu Init
         id: init
-        run: tofu init -var-file="./gh-actions.tfvars"
+        run: tofu init
 
       - name: OpenTofu Validate
         id: validate
-        run: tofu validate -no-color -var-file="./gh-actions.tfvars"
+        run: tofu validate -no-color
 
       - name: OpenTofu Plan
         id: plan
-        run: tofu plan -no-color -var-file="./gh-actions.tfvars"
+        run: tofu plan -no-color
         continue-on-error: true
 
       - uses: actions/github-script@v6
@@ -124,4 +124,4 @@ jobs:
       # Optional: Apply OpenTofu (requires proper authentication and permissions)
       # - name: Apply OpenTofu
       #   if: github.event_name == 'push'
-      #   run: tofu apply -auto-approve -var-file="./gh-actions.tfvars"
+      #   run: tofu apply -auto-approve
