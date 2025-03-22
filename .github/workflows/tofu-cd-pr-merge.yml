@@ -57,4 +57,5 @@ jobs:
           arg-lock: ${{ github.event_name == 'merge_group' }}
           plan-encrypt: ${{ secrets.PASSPHRASE }}
           plan-parity: true # Prevents stale apply within merge queue.
+          comment-pr: never
           tool: tofu
